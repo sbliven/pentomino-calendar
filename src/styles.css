@@ -1,0 +1,98 @@
+:root {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  color: #111827;
+  background: #f3f4f6;
+}
+
+body {
+  margin: 0;
+  padding: 2rem;
+}
+
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  background: #fff;
+  border-radius: 12px;
+  padding: 1.5rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  margin: 0;
+}
+
+.subtitle {
+  color: #4b5563;
+}
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+button,
+input {
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+  padding: 0.5rem 0.75rem;
+}
+
+button {
+  cursor: pointer;
+  background: #111827;
+  color: #fff;
+}
+
+.status[data-state="loading"] {
+  color: #1d4ed8;
+}
+.status[data-state="ready"] {
+  color: #166534;
+}
+.status[data-state="error"] {
+  color: #b91c1c;
+}
+
+.board {
+  display: grid;
+  gap: 6px;
+  background: #111827;
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.cell {
+  aspect-ratio: 1 / 1;
+  border-radius: 4px;
+}
+
+.cell.open {
+  background: #e5e7eb;
+}
+
+.cell.blocked {
+  background: #111827;
+  border: 1px solid #374151;
+}
+
+.legend ul {
+  list-style: none;
+  padding: 0;
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  display: inline-block;
+}

@@ -1,0 +1,28 @@
+{
+  "name": "calendar_puzzle",
+  "version": "1.0.0",
+  "description": "Static GitHub Pages pentomino hint app",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "deploy": "npm run build"
+  },
+  "keywords": [
+    "pentomino",
+    "calendar",
+    "dlx",
+    "vite",
+    "typescript"
+  ],
+  "license": "MIT",
+  "type": "module",
+  "dependencies": {
+    "dlx": "^0.2.1",
+    "vite": "^8.0.11"
+  },
+  "devDependencies": {
+    "@types/node": "^25.6.2",
+    "typescript": "^6.0.3"
+  }
+}
