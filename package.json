@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "deploy": "npm run build"
+    "deploy": "npm run build",
+    "test": "node --test test/puzzles.test.mjs test/puzzle-generation.test.mjs"
   },
   "keywords": [
     "pentomino",
