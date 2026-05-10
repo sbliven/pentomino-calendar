@@ -39,7 +39,7 @@ test("2026-05-14 blocked cells (May 14 Thu + fixed hole)", () => {
     new Set([
       coordKey([0, 1]),
       coordKey([7, 5]),
-      coordKey([7, 2]),
+      coordKey([7, 3]),
       coordKey([8, 5]),
     ]),
   );

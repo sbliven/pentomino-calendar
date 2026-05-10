@@ -117,7 +117,11 @@ export function getPieceVariants(pieceId: string): Coord[][] {
   const seen = new Set<string>();
   const variants: Coord[][] = [];
 
-  for (let i = 0; i < 8; i += 1) {
+  // Only F is symmetric under reflection in the puzzle rules; all other pieces use
+  // the four rotations of the canonical base (no mirror copies).
+  const variantCount = pieceId === "F" ? 8 : 4;
+
+  for (let i = 0; i < variantCount; i += 1) {
     const normalized = normalize(transform(base, i));
     const key = signature(normalized);
     if (!seen.has(key)) {
