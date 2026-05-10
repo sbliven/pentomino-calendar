@@ -33,8 +33,7 @@ npm run preview
 ## GitHub Pages
 
 - Workflow: `.github/workflows/pages.yml`
-- Vite base path is set in `vite.config.ts`.
-- For a repository named `calendar_puzzle`, the site is deployed from `dist`.
+- Vite `base` is derived from the repo name in CI (`GITHUB_REPOSITORY`), so assets resolve under `/<repo>/` on GitHub Pages and on custom domains that use the same path.
 
 ## Puzzle Data
 
