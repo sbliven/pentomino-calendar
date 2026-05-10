@@ -1,3 +1,4 @@
+import { coordKey, getBlockedCells } from "../puzzle/blockedCells";
 import type { Coord, DateKey, Placement, PuzzleConfig } from "../types";
 import { getPieceVariants } from "./pieceVariants";
 
@@ -7,21 +8,9 @@ interface MatrixBuildResult {
   blockedCells: Set<string>;
 }
 
-function keyOf([x, y]: Coord): string {
-  return `${x},${y}`;
-}
-
 function parseKey(key: string): Coord {
   const [x, y] = key.split(",").map(Number);
   return [x, y];
-}
-
-function getBlockedCells(config: PuzzleConfig, date: DateKey): Set<string> {
-  const blocked = new Set<string>(config.board.fixedBlocked.map(keyOf));
-  blocked.add(keyOf(config.board.monthCells[date.month - 1]));
-  blocked.add(keyOf(config.board.dayCells[date.day - 1]));
-  blocked.add(keyOf(config.board.weekdayCells[date.weekday]));
-  return blocked;
 }
 
 export function buildExactCoverMatrix(config: PuzzleConfig, date: DateKey): MatrixBuildResult {
@@ -53,7 +42,7 @@ export function buildExactCoverMatrix(config: PuzzleConfig, date: DateKey): Matr
       for (let y = 0; y <= config.board.height - maxY - 1; y += 1) {
         for (let x = 0; x <= config.board.width - maxX - 1; x += 1) {
           const translated = variant.map(([vx, vy]) => [x + vx, y + vy] as Coord);
-          const translatedKeys = translated.map(keyOf);
+          const translatedKeys = translated.map(coordKey);
           if (translatedKeys.some((cellKey) => !cellColumnIndex.has(cellKey))) continue;
 
           const row = [pieceColumnOffset + pieceIndex];

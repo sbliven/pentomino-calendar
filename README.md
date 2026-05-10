@@ -19,6 +19,10 @@ npm install
 npm run dev
 ```
 
+```bash
+npm test
+```
+
 ## Build
 
 ```bash
