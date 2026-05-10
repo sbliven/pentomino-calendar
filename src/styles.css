@@ -70,12 +70,30 @@ button {
 }
 
 .cell.open {
-  background: #e5e7eb;
+  background: #b3b5b7;
 }
 
 .cell.blocked {
   background: #111827;
   border: 1px solid #374151;
+}
+
+.cell.blocked.label-slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #fff !important;
+  color: #000;
+  border: 1px solid #a4a8ad;
+}
+
+.cell-label-text {
+  color: #000;
+  font-weight: 600;
+  font-size: clamp(10px, min(2.8vw, 3.5vh), 14px);
+  line-height: 1.1;
+  text-align: center;
+  padding: 2px;
 }
 
 .legend ul {

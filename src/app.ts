@@ -1,4 +1,5 @@
 import puzzleData from "../data/puzzles.json";
+import { coordKey, getBlockedCells } from "./puzzle/blockedCells";
 import { solveDate } from "./solver/dlxSolver";
 import type { DateKey, PuzzleConfig, SolvedPuzzle } from "./types";
 
@@ -63,8 +64,26 @@ export function mountApp(root: HTMLDivElement): void {
     return [];
   }
 
+  function escapeHtml(text: string): string {
+    const div = document.createElement("div");
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  function labelTextsForDate(date: Date): Map<string, string> {
+    const dk = toDateKey(date);
+    const labels = new Map<string, string>();
+    labels.set(coordKey(config.board.monthCells[dk.month - 1]), config.months[dk.month - 1]);
+    const dayIdx = config.days.findIndex((d) => d === dk.day);
+    if (dayIdx >= 0) labels.set(coordKey(config.board.dayCells[dayIdx]), String(dk.day));
+    labels.set(coordKey(config.board.weekdayCells[dk.weekday]), config.weekdays[dk.weekday]);
+    return labels;
+  }
+
   function renderBoard(): void {
-    const blocked = solved?.blockedCells ?? new Set<string>();
+    const dk = toDateKey(activeDate);
+    const blocked = solved?.blockedCells ?? getBlockedCells(config, dk);
+    const labels = labelTextsForDate(activeDate);
     const revealedCells = new Map<string, number>();
     visiblePlacements().forEach((placement, index) => {
       placement.cells.forEach(([x, y]) => revealedCells.set(`${x},${y}`, index));
@@ -74,10 +93,20 @@ export function mountApp(root: HTMLDivElement): void {
     for (let y = 0; y < config.board.height; y += 1) {
       for (let x = 0; x < config.board.width; x += 1) {
         const key = `${x},${y}`;
-        const blockedClass = blocked.has(key) ? "blocked" : "open";
+        const label = labels.get(key);
         const revealIndex = revealedCells.get(key);
-        const color = revealIndex === undefined ? "" : `style="background:${cellColors[revealIndex % cellColors.length]}"`;
-        cells.push(`<div class="cell ${blockedClass}" ${color}></div>`);
+        const color =
+          revealIndex === undefined ? "" : ` style="background:${cellColors[revealIndex % cellColors.length]}"`;
+
+        if (label !== undefined) {
+          cells.push(
+            `<div class="cell blocked label-slot"${color}><span class="cell-label-text">${escapeHtml(label)}</span></div>`,
+          );
+          continue;
+        }
+
+        const blockedClass = blocked.has(key) ? "blocked" : "open";
+        cells.push(`<div class="cell ${blockedClass}"${color}></div>`);
       }
     }
     board.innerHTML = cells.join("");
