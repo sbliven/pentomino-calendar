@@ -11,16 +11,18 @@
     <link rel="manifest" href="./assets/site.webmanifest" />
   </head>
   <body>
-    <header class="page-header">
-      <img class="page-header-icon" src="./assets/icon.svg" width="48" height="48" alt="" decoding="async" />
-      <h1>Pentomino Calendar Solver</h1>
-    </header>
-    <div id="app"></div>
-    <section>
-      <summary><h2>About</h2></summary>
-      <p>This is a web-based solver for the puzzle <a href="https://www.twistypuzzles.com/forum/viewtopic.php?t=39609">Calendarium</a> by Dmitry Andreev (Pluton). The original version was in <a href="https://collectionerus.ru/collections/pp/178/">Russian</a>, while english variants are available from sources like <a href="https://puzzleguy.store/products/calendar-puzzle-each-day-a-new-challenge">Puzzle Guy</a>.</p>
-      <p>The goal of the puzzle is to arrange 10 pentomino tiles in such a way that they cover all squares except for today's month, day, and weekday. There is one problem with this: <em>finding a solution is incredibly hard</em>. And, you know, some mornings I just to complete a calendar before my coffee is finished.</p>
-    </section>
+    <div class="page-wrap">
+      <header class="page-header">
+        <img class="page-header-icon" src="./assets/icon.svg" width="48" height="48" alt="" decoding="async" />
+        <h1>Pentomino Calendar Solver</h1>
+      </header>
+      <div id="app"></div>
+      <section class="about">
+        <summary><h2>About</h2></summary>
+        <p>This is a web-based solver for the puzzle <a href="https://www.twistypuzzles.com/forum/viewtopic.php?t=39609">Calendarium</a> by Dmitry Andreev (Pluton). The original version was in <a href="https://collectionerus.ru/collections/pp/178/">Russian</a>, while english variants are available from sources like <a href="https://puzzleguy.store/products/calendar-puzzle-each-day-a-new-challenge">Puzzle Guy</a>.</p>
+        <p>The goal of the puzzle is to arrange 10 pentomino tiles in such a way that they cover all squares except for today's month, day, and weekday. There is one problem with this: <em>finding a solution is incredibly hard</em>. And, you know, some mornings I just to complete a calendar before my coffee is finished.</p>
+      </section>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>
