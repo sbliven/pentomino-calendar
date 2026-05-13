@@ -53,3 +53,9 @@ npm run preview
 - pentomino piece IDs
 
 See `docs/puzzle-data-format.md` for coordinate conventions and date mapping.
+
+## AI disclaimer
+
+This code was generated with heavy help from [Cursor](https://cursor.com/) AI agents.
+
+Testing AIs for non-trivial algorithms was part of the goal. The app took around 2 hours to build, with the AI doing most of the work including all the solution algorithms (which use a library for the Algorithm X implementation, but still requires a lot of setup for enumerating valid piece placements).

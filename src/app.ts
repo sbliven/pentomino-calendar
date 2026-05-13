@@ -11,7 +11,7 @@ type SolveState = "idle" | "loading" | "ready" | "error";
 export function mountApp(root: HTMLDivElement): void {
   root.innerHTML = `
     <main class="container">
-      <p class="subtitle">Pick a date and reveal 1 piece, 2 pieces, or the full solution.</p>
+      <p class="subtitle">Pick a date, reveal hints one piece at a time, or show the full solution.</p>
       <div class="toolbar">
         <div class="toolbar-row">
           <span class="toolbar-label">Date</span>
@@ -21,9 +21,8 @@ export function mountApp(root: HTMLDivElement): void {
         </div>
         <div class="toolbar-row">
           <span class="toolbar-label">Hint</span>
-          <button type="button" id="hint-1">Show Hint 1</button>
-          <button type="button" id="hint-2">Show Hint 2</button>
-          <button type="button" id="hint-3">Show Full Solution</button>
+          <button type="button" id="show-hint">Show Hint</button>
+          <button type="button" id="show-full">Show Full Solution</button>
           <button type="button" id="reset">Reset</button>
         </div>
       </div>
@@ -43,6 +42,9 @@ export function mountApp(root: HTMLDivElement): void {
   let solveState: SolveState = "idle";
   let solved: SolvedPuzzle | null = null;
   let hintLevel = 0;
+
+  const showHintBtn = root.querySelector<HTMLButtonElement>("#show-hint")!;
+  const showFullBtn = root.querySelector<HTMLButtonElement>("#show-full")!;
   let activeDate = new Date();
 
   function setStatus(message: string, state: SolveState): void {
@@ -72,10 +74,7 @@ export function mountApp(root: HTMLDivElement): void {
 
   function visiblePlacements(): SolvedPuzzle["placements"] {
     if (!solved) return [];
-    if (hintLevel === 1) return solved.placements.slice(0, 1);
-    if (hintLevel === 2) return solved.placements.slice(0, 2);
-    if (hintLevel >= 3) return solved.placements;
-    return [];
+    return solved.placements.slice(0, hintLevel);
   }
 
   function escapeHtml(text: string): string {
@@ -131,15 +130,26 @@ export function mountApp(root: HTMLDivElement): void {
       legend.innerHTML = "";
       return;
     }
-    const items = visiblePlacements()
-      .map((placement, idx) => `<li><span class="swatch" style="background:${cellColors[idx % cellColors.length]}"></span>${placement.pieceId}</li>`)
-      .join("");
-    legend.innerHTML = `<h2>Revealed Pieces</h2><ul>${items || "<li>None</li>"}</ul>`;
+    const chips = visiblePlacements()
+      .map(
+        (placement, idx) =>
+          `<span class="legend-chip"><span class="swatch" style="background:${cellColors[idx % cellColors.length]}"></span>${escapeHtml(placement.pieceId)}</span>`,
+      )
+      .join('<span class="legend-sep" aria-hidden="true">·</span>');
+    legend.innerHTML = `<div class="legend-row"><h2 class="legend-heading">Revealed Pieces</h2><div class="legend-chips">${chips || "None"}</div></div>`;
+  }
+
+  function syncRevealButtons(): void {
+    const n = solved?.placements.length ?? 0;
+    const canReveal = solveState === "ready" && n > 0 && hintLevel < n;
+    showHintBtn.disabled = !canReveal;
+    showFullBtn.disabled = !canReveal;
   }
 
   function render(): void {
     renderBoard();
     renderLegend();
+    syncRevealButtons();
   }
 
   async function solveForDate(date: Date): Promise<void> {
@@ -163,16 +173,15 @@ export function mountApp(root: HTMLDivElement): void {
     render();
   }
 
-  root.querySelector<HTMLButtonElement>("#hint-1")!.addEventListener("click", () => {
-    hintLevel = Math.max(hintLevel, 1);
+  showHintBtn.addEventListener("click", () => {
+    if (!solved) return;
+    const n = solved.placements.length;
+    if (hintLevel < n) hintLevel += 1;
     render();
   });
-  root.querySelector<HTMLButtonElement>("#hint-2")!.addEventListener("click", () => {
-    hintLevel = Math.max(hintLevel, 2);
-    render();
-  });
-  root.querySelector<HTMLButtonElement>("#hint-3")!.addEventListener("click", () => {
-    hintLevel = 3;
+  showFullBtn.addEventListener("click", () => {
+    if (!solved) return;
+    hintLevel = solved.placements.length;
     render();
   });
   root.querySelector<HTMLButtonElement>("#reset")!.addEventListener("click", () => {
