@@ -28,9 +28,22 @@ h1 {
 
 .toolbar {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.75rem;
   margin: 1rem 0;
+}
+
+.toolbar-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.toolbar-label {
+  font-weight: 600;
+  color: #374151;
+  min-width: 2.75rem;
 }
 
 button,

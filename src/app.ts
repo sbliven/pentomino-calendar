@@ -11,14 +11,21 @@ type SolveState = "idle" | "loading" | "ready" | "error";
 export function mountApp(root: HTMLDivElement): void {
   root.innerHTML = `
     <main class="container">
-      <h1>Calendar Pentomino Hints</h1>
       <p class="subtitle">Pick a date and reveal 1 piece, 2 pieces, or the full solution.</p>
       <div class="toolbar">
-        <label>Date <input id="date-input" type="date" /></label>
-        <button id="hint-1">Show Hint 1</button>
-        <button id="hint-2">Show Hint 2</button>
-        <button id="hint-3">Show Full Solution</button>
-        <button id="reset">Reset</button>
+        <div class="toolbar-row">
+          <span class="toolbar-label">Date</span>
+          <button type="button" id="date-today">Today</button>
+          <button type="button" id="date-tomorrow">Tomorrow</button>
+          <input id="date-input" type="date" aria-label="Date" />
+        </div>
+        <div class="toolbar-row">
+          <span class="toolbar-label">Hint</span>
+          <button type="button" id="hint-1">Show Hint 1</button>
+          <button type="button" id="hint-2">Show Hint 2</button>
+          <button type="button" id="hint-3">Show Full Solution</button>
+          <button type="button" id="reset">Reset</button>
+        </div>
       </div>
       <p id="status" class="status"></p>
       <div id="board" class="board"></div>
@@ -53,7 +60,14 @@ export function mountApp(root: HTMLDivElement): void {
   }
 
   function formatDate(date: Date): string {
-    return date.toISOString().slice(0, 10);
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, "0");
+    const d = String(date.getDate()).padStart(2, "0");
+    return `${y}-${m}-${d}`;
+  }
+
+  function syncDateInput(): void {
+    dateInput.value = formatDate(activeDate);
   }
 
   function visiblePlacements(): SolvedPuzzle["placements"] {
@@ -172,6 +186,20 @@ export function mountApp(root: HTMLDivElement): void {
     void solveForDate(activeDate);
   });
 
-  dateInput.value = formatDate(activeDate);
+  root.querySelector<HTMLButtonElement>("#date-today")!.addEventListener("click", () => {
+    activeDate = new Date();
+    syncDateInput();
+    void solveForDate(activeDate);
+  });
+
+  root.querySelector<HTMLButtonElement>("#date-tomorrow")!.addEventListener("click", () => {
+    const next = new Date();
+    next.setDate(next.getDate() + 1);
+    activeDate = next;
+    syncDateInput();
+    void solveForDate(activeDate);
+  });
+
+  syncDateInput();
   void solveForDate(activeDate);
 }
