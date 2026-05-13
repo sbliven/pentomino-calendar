@@ -1,7 +1,7 @@
 import puzzleData from "../data/puzzles.json";
 import { coordKey, getBlockedCells } from "./puzzle/blockedCells";
 import { solveDate } from "./solver/dlxSolver";
-import type { DateKey, PuzzleConfig, SolvedPuzzle } from "./types";
+import type { DateKey, Placement, PuzzleConfig, SolvedPuzzle } from "./types";
 
 const config = puzzleData as PuzzleConfig;
 const cellColors = ["#ef4444", "#14b8a6", "#3b82f6", "#f59e0b", "#8b5cf6", "#22c55e", "#ec4899", "#f97316", "#6366f1", "#10b981"];
@@ -58,7 +58,7 @@ export function mountApp(root: HTMLDivElement): void {
     solveState = "loading";
     status.dataset.state = "loading";
     status.innerHTML =
-      '<span class="status-inner"><span class="status-spinner" aria-hidden="true"></span><span>Finding solution…</span></span>';
+      '<span class="status-inner"><span class="status-spinner" aria-hidden="true"></span><span>Finding solutions…</span></span>';
   }
 
   function yieldToPaint(): Promise<void> {
@@ -100,9 +100,12 @@ export function mountApp(root: HTMLDivElement): void {
     dateInput.value = formatDate(activeDate);
   }
 
-  function visiblePlacements(): SolvedPuzzle["placements"] {
-    if (!solved) return [];
-    return solved.placements.slice(0, hintLevel);
+  function primaryPlacements(): Placement[] {
+    return solved?.solutions[0] ?? [];
+  }
+
+  function visiblePlacements(): Placement[] {
+    return primaryPlacements().slice(0, hintLevel);
   }
 
   function escapeHtml(text: string): string {
@@ -168,7 +171,7 @@ export function mountApp(root: HTMLDivElement): void {
   }
 
   function syncRevealButtons(): void {
-    const n = solved?.placements.length ?? 0;
+    const n = primaryPlacements().length;
     const canReveal = solveState === "ready" && n > 0 && hintLevel < n;
     showHintBtn.disabled = !canReveal;
     showFullBtn.disabled = !canReveal;
@@ -203,7 +206,11 @@ export function mountApp(root: HTMLDivElement): void {
       }
       if (seq !== solveSeq) return;
       solved = result;
-      setStatus("Solved. Reveal hints when ready.", "ready");
+      const count = result.solutions.length;
+      setStatus(
+        count === 1 ? "1 solution found. Reveal hints when ready." : `${count} solutions found. Reveal hints when ready.`,
+        "ready",
+      );
     } catch (error) {
       if (seq !== solveSeq) return;
       solved = null;
@@ -216,13 +223,13 @@ export function mountApp(root: HTMLDivElement): void {
 
   showHintBtn.addEventListener("click", () => {
     if (!solved) return;
-    const n = solved.placements.length;
+    const n = primaryPlacements().length;
     if (hintLevel < n) hintLevel += 1;
     render();
   });
   showFullBtn.addEventListener("click", () => {
     if (!solved) return;
-    hintLevel = solved.placements.length;
+    hintLevel = primaryPlacements().length;
     render();
   });
   root.querySelector<HTMLButtonElement>("#reset")!.addEventListener("click", () => {

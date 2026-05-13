@@ -31,5 +31,6 @@ export interface Placement {
 
 export interface SolvedPuzzle {
   blockedCells: Set<string>;
-  placements: Placement[];
+  /** Every exact cover from the solver, each as placements sorted by `pieces` order. The UI uses `solutions[0]`. */
+  solutions: Placement[][];
 }

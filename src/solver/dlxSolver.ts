@@ -9,16 +9,18 @@ function stableSortPlacements(placements: Placement[], pieceOrder: string[]): Pl
 
 export function solveDate(config: PuzzleConfig, date: DateKey): SolvedPuzzle {
   const { sparseMatrix, rowPlacements, blockedCells } = buildExactCoverMatrix(config, date);
-  const solutions = dlx.solve_sparse_matrix(sparseMatrix);
+  const rawSolutions = dlx.solve_sparse_matrix(sparseMatrix);
 
-  if (!solutions.length) {
+  if (!rawSolutions.length) {
     throw new Error("No solution found for this date.");
   }
 
-  const placements = stableSortPlacements(
-    solutions[0].map((rowIndex) => rowPlacements[rowIndex]),
-    config.pieces,
+  const solutions = rawSolutions.map((rowIndices) =>
+    stableSortPlacements(
+      rowIndices.map((rowIndex) => rowPlacements[rowIndex]),
+      config.pieces,
+    ),
   );
 
-  return { blockedCells, placements };
+  return { blockedCells, solutions };
 }
