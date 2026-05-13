@@ -81,6 +81,30 @@ button:disabled {
 .status[data-state="loading"] {
   color: #1d4ed8;
 }
+
+.status-inner {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-spinner {
+  box-sizing: border-box;
+  width: 1rem;
+  height: 1rem;
+  flex-shrink: 0;
+  border: 2px solid #bfdbfe;
+  border-top-color: #1d4ed8;
+  border-radius: 50%;
+  animation: status-spin 0.65s linear infinite;
+}
+
+@keyframes status-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .status[data-state="ready"] {
   color: #166534;
 }

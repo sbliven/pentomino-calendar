@@ -26,7 +26,7 @@ export function mountApp(root: HTMLDivElement): void {
           <button type="button" id="reset">Reset</button>
         </div>
       </div>
-      <p id="status" class="status"></p>
+      <p id="status" class="status" role="status" aria-live="polite"></p>
       <div id="board" class="board"></div>
       <aside id="legend" class="legend"></aside>
     </main>
@@ -42,6 +42,7 @@ export function mountApp(root: HTMLDivElement): void {
   let solveState: SolveState = "idle";
   let solved: SolvedPuzzle | null = null;
   let hintLevel = 0;
+  let solveSeq = 0;
 
   const showHintBtn = root.querySelector<HTMLButtonElement>("#show-hint")!;
   const showFullBtn = root.querySelector<HTMLButtonElement>("#show-full")!;
@@ -49,8 +50,35 @@ export function mountApp(root: HTMLDivElement): void {
 
   function setStatus(message: string, state: SolveState): void {
     solveState = state;
-    status.textContent = message;
     status.dataset.state = state;
+    status.textContent = message;
+  }
+
+  function setLoadingStatus(): void {
+    solveState = "loading";
+    status.dataset.state = "loading";
+    status.innerHTML =
+      '<span class="status-inner"><span class="status-spinner" aria-hidden="true"></span><span>Finding solution…</span></span>';
+  }
+
+  function yieldToPaint(): Promise<void> {
+    return new Promise((resolve) => {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => resolve());
+      });
+    });
+  }
+
+  function runSolveAsync<T>(fn: () => T): Promise<T> {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        try {
+          resolve(fn());
+        } catch (err) {
+          reject(err);
+        }
+      }, 0);
+    });
   }
 
   function toDateKey(date: Date): DateKey {
@@ -153,23 +181,36 @@ export function mountApp(root: HTMLDivElement): void {
   }
 
   async function solveForDate(date: Date): Promise<void> {
+    activeDate = date;
+    const seq = ++solveSeq;
     const cacheKey = dateKey(date);
     hintLevel = 0;
-    setStatus("Solving puzzle...", "loading");
+    solved = null;
+    setLoadingStatus();
     render();
 
+    await yieldToPaint();
+    if (seq !== solveSeq) return;
+
     try {
-      if (!solveCache.has(cacheKey)) {
-        const result = solveDate(config, toDateKey(date));
+      let result: SolvedPuzzle;
+      if (solveCache.has(cacheKey)) {
+        result = solveCache.get(cacheKey)!;
+      } else {
+        result = await runSolveAsync(() => solveDate(config, toDateKey(date)));
+        if (seq !== solveSeq) return;
         solveCache.set(cacheKey, result);
       }
-      solved = solveCache.get(cacheKey)!;
+      if (seq !== solveSeq) return;
+      solved = result;
       setStatus("Solved. Reveal hints when ready.", "ready");
     } catch (error) {
+      if (seq !== solveSeq) return;
       solved = null;
       setStatus((error as Error).message, "error");
     }
 
+    if (seq !== solveSeq) return;
     render();
   }
 
