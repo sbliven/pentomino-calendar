@@ -1,4 +1,5 @@
 import puzzleData from "../data/puzzles.json";
+import { orderHintPlacements } from "./hints/orderHints";
 import { coordKey, getBlockedCells } from "./puzzle/blockedCells";
 import { solveDate } from "./solver/dlxSolver";
 import type { DateKey, Placement, PuzzleConfig, SolvedPuzzle } from "./types";
@@ -41,6 +42,7 @@ export function mountApp(root: HTMLDivElement): void {
   const solveCache = new Map<string, SolvedPuzzle>();
   let solveState: SolveState = "idle";
   let solved: SolvedPuzzle | null = null;
+  let orderedHints: Placement[] = [];
   let hintLevel = 0;
   let solveSeq = 0;
 
@@ -100,12 +102,12 @@ export function mountApp(root: HTMLDivElement): void {
     dateInput.value = formatDate(activeDate);
   }
 
-  function primaryPlacements(): Placement[] {
-    return solved?.solutions[0] ?? [];
+  function hintPlacements(): Placement[] {
+    return orderedHints;
   }
 
   function visiblePlacements(): Placement[] {
-    return primaryPlacements().slice(0, hintLevel);
+    return hintPlacements().slice(0, hintLevel);
   }
 
   function escapeHtml(text: string): string {
@@ -171,7 +173,7 @@ export function mountApp(root: HTMLDivElement): void {
   }
 
   function syncRevealButtons(): void {
-    const n = primaryPlacements().length;
+    const n = hintPlacements().length;
     const canReveal = solveState === "ready" && n > 0 && hintLevel < n;
     showHintBtn.disabled = !canReveal;
     showFullBtn.disabled = !canReveal;
@@ -189,6 +191,7 @@ export function mountApp(root: HTMLDivElement): void {
     const cacheKey = dateKey(date);
     hintLevel = 0;
     solved = null;
+    orderedHints = [];
     setLoadingStatus();
     render();
 
@@ -206,6 +209,7 @@ export function mountApp(root: HTMLDivElement): void {
       }
       if (seq !== solveSeq) return;
       solved = result;
+      orderedHints = orderHintPlacements(result.solutions, cacheKey);
       const count = result.solutions.length;
       setStatus(
         count === 1 ? "1 solution found. Reveal hints when ready." : `${count} solutions found. Reveal hints when ready.`,
@@ -223,13 +227,13 @@ export function mountApp(root: HTMLDivElement): void {
 
   showHintBtn.addEventListener("click", () => {
     if (!solved) return;
-    const n = primaryPlacements().length;
+    const n = hintPlacements().length;
     if (hintLevel < n) hintLevel += 1;
     render();
   });
   showFullBtn.addEventListener("click", () => {
     if (!solved) return;
-    hintLevel = primaryPlacements().length;
+    hintLevel = hintPlacements().length;
     render();
   });
   root.querySelector<HTMLButtonElement>("#reset")!.addEventListener("click", () => {
